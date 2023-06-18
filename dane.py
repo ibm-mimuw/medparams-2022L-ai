@@ -1,5 +1,9 @@
 import numpy as np
 import json
+import functools
+
+def compare(x,y):
+    return x["score"] - y["score"]
 
 def numbers(top, bottom,n):
     res = np.random.normal((top+bottom)/2, (top-bottom)/2, 3*n) 
@@ -7,11 +11,14 @@ def numbers(top, bottom,n):
 
 def value(top, bottom, x):
     if(x<bottom):
-        return (1. / np.sin((np.pi*x)/(2. * bottom))) - 1.
-    return (np.exp(x-top)-x+top -1) if (x>top) else 0
+        return (bottom-x)
+        # return (1. / np.sin((np.pi*x)/(2. * bottom))) - 1.
+    return (x-top) if (x>top) else 0
 
-def sigmoid(x):
-    return ((1/(1+np.exp(-x)))-0.5)*2
+# def sigmoid(x):
+#     return x
+    # return (1-np.exp(-(x/10000)**1.5))
+    # return ((1/(1+np.exp(-x/1000)))-0.5)*2
 
 vals = {
     "hr": {
@@ -70,9 +77,26 @@ def get_values(n):
 
     
 def get_mock_data(n):
-    return [{"score":sigmoid(np.sum([value(vals[b]["top"], vals[b]["bottom"], a[i]) for i, b in enumerate(keys) ])/(200*len(keys))), "vals":a.tolist()}for a in get_values(n)]
+    return [{"score":np.sum([value(vals[b]["top"], vals[b]["bottom"], a[i]) for i, b in enumerate(keys) ]), "vals":a.tolist()}for a in get_values(n)]
     
-result = get_mock_data(20000)
+result = get_mock_data(int(20000/0.95))
+
+result = sorted(result, key=functools.cmp_to_key(compare))[:20000]
+
+scores = [elem["score"] for elem in result]
+
+mx = np.max(scores)
+
+print(np.average(scores))
+
+print(np.quantile(scores, 0.05))
+
+print(np.average(scores))
+print(mx)
+
+result = [{"score":elem["score"]/mx, "vals":elem["vals"]} for elem in result]
+
+# print(result)
 
 with open('data.json', 'w') as outfile:
     outfile.write(json.dumps(result))
