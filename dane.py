@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 def numbers(top, bottom,n):
     res = np.random.normal((top+bottom)/2, (top-bottom)/2, 3*n) 
@@ -69,5 +70,9 @@ def get_values(n):
 
     
 def get_mock_data(n):
-    return [{"score":sigmoid(np.sum([value(vals[b]["top"], vals[b]["bottom"], a[i]) for i, b in enumerate(keys) ])/(len(keys))), "vals":a}for a in get_values(n)]
+    return [{"score":sigmoid(np.sum([value(vals[b]["top"], vals[b]["bottom"], a[i]) for i, b in enumerate(keys) ])/(200*len(keys))), "vals":a.tolist()}for a in get_values(n)]
     
+result = get_mock_data(20000)
+
+with open('data.json', 'w') as outfile:
+    outfile.write(json.dumps(result))
