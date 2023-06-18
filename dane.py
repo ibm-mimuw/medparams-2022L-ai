@@ -96,7 +96,7 @@ print(mx)
 
 result = [{"score":elem["score"]/mx, "vals":elem["vals"]} for elem in result]
 
-# print(result)
+print(len(result))
 
 with open('data.json', 'w') as outfile:
     outfile.write(json.dumps(result))
